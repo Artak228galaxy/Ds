@@ -1,0 +1,31 @@
+{
+  "language": "Solidity",
+  "sources": {
+    "src/Basic4626Deposit.sol": {
+      "content": "// SPDX-License-Identifier: UNLICENSED\npragma solidity ^0.8.17;\n\ninterface IERC20Like {\n\n    function balanceOf(address owner_) external view returns (uint256 balance_);\n\n    function transferFrom(\n        address owner_,\n        address recipient_,\n        uint256 amount_\n    ) external returns (bool success_);\n\n}\n\ncontract Basic4626Deposit {\n\n    /**********************************************************************************************/\n    /*** Storage                                                                                ***/\n    /**********************************************************************************************/\n\n    address public immutable asset;\n\n    string public name;\n    string public symbol;\n\n    uint8 public immutable decimals;\n\n    uint256 public totalSupply;\n\n    mapping(address => uint256) public balanceOf;\n\n    /**********************************************************************************************/\n    /*** Constructor                                                                            ***/\n    /**********************************************************************************************/\n\n    constructor(address asset_, string memory name_, string memory symbol_, uint8 decimals_) {\n        asset    = asset_;\n        name     = name_;\n        symbol   = symbol_;\n        decimals = decimals_;\n    }\n\n    /**********************************************************************************************/\n    /*** External Functions                                                                     ***/\n    /**********************************************************************************************/\n\n    function deposit(uint256 assets_, address receiver_) external returns (uint256 shares_) {\n        shares_ = convertToShares(assets_);\n\n        require(receiver_ != address(0), \"ZERO_RECEIVER\");\n        require(shares_   != uint256(0), \"ZERO_SHARES\");\n        require(assets_   != uint256(0), \"ZERO_ASSETS\");\n\n        totalSupply += shares_;\n\n        // Cannot overflow because totalSupply would first overflow in the statement above.\n        unchecked { balanceOf[receiver_] += shares_; }\n\n        require(\n            IERC20Like(asset).transferFrom(msg.sender, address(this), assets_),\n            \"TRANSFER_FROM\"\n        );\n    }\n\n    function transfer(address recipient_, uint256 amount_) external returns (bool success_) {\n        balanceOf[msg.sender] -= amount_;\n\n        // Cannot overflow because minting prevents overflow of totalSupply,\n        // and sum of user balances == totalSupply.\n        unchecked { balanceOf[recipient_] += amount_; }\n\n        return true;\n    }\n\n    /**********************************************************************************************/\n    /*** Public View Functions                                                                  ***/\n    /**********************************************************************************************/\n\n    function convertToShares(uint256 assets_) public view returns (uint256 shares_) {\n        uint256 supply_ = totalSupply;  // Cache to stack.\n\n        shares_ = supply_ == 0 ? assets_ : (assets_ * supply_) / totalAssets();\n    }\n\n    function totalAssets() public view returns (uint256 assets_) {\n        assets_ = IERC20Like(asset).balanceOf(address(this));\n    }\n\n}\n\n"
+    }
+  },
+  "settings": {
+    "remappings": [
+      "ds-test/=lib/forge-std/lib/ds-test/src/",
+      "forge-std/=lib/forge-std/src/"
+    ],
+    "optimizer": {
+      "enabled": true,
+      "runs": 200
+    },
+    "outputSelection": {
+      "*": {
+        "": [
+          "metadata"
+        ],
+        "*": [
+          "abi",
+          "evm.methodIdentifiers"
+        ]
+      }
+    },
+    "evmVersion": "paris",
+    "libraries": {}
+  }
+}
