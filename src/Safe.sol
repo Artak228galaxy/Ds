@@ -31,7 +31,7 @@ contract SafeTest is Test {
         assertEq(preBalance + 1 ether, postBalance);
     }
 
-    // test should fail because for large amount sizes
+    // test should fail due to amounts beyond 2**96 wei
     function testFuzz_Withdraw(uint256 amount) public {
         payable(address(safe)).transfer(amount);
         uint256 preBalance = address(this).balance;
