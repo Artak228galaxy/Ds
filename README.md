@@ -11,13 +11,14 @@ Running these tests requires the following:
 
 ## Usage
 
-This repo contains examples of advanced testing using Foundry. To run these tests using Forge to see expected behavior, follow these steps (one test should fail): 
+This repo contains examples of advanced testing using Foundry. To run these tests using Forge to see expected behavior, follow these steps after cloning and `cd` to project root (one test should fail): 
 
-1. Clone this repo and navigate to the project root directory
-2. Run `forge test`
+```sh
+forge test --ffi
+```
 
 To run these tests using zkSync Foundry, run the following from project root (test output should match that of Forge above):
 
 ```sh
-zkforge test
+zkforge test --ffi
 ```
